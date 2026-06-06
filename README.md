@@ -1,70 +1,219 @@
-# Stock Analyzer
+#Stock Analyzer
 
-此项目为加密货币监控项目的A股精简版。
-主要功能包括通过 A股数据，实时分析监控A股行情，可自行配置监控标的品种，数量和技术分析信号及周期窗口，
-可主动扫描符合信号的标的，也可实时监控符合条件时自动通过邮箱通知进行操作。
+A lightweight Python toolkit for A-share market analysis, technical-indicator research, signal scanning, and alert monitoring.
 
-## 功能特点
+This project is designed for developers, retail investors, and quantitative-learning users who want a readable and extensible codebase for studying Chinese A-share market data. It supports real-time and historical data analysis, configurable indicators, custom trading signals, active scanning, and email-based notifications.
 
-##### 支持实时数据和历史数据的分析。
-##### 支持自定义指标，根据自定义指标生成交易信号。
-##### 支持主动扫描
-##### 支持通过邮件进行交易信号的通知。
-##### 自带macd halftrend、 smart money concepts(聪明钱)、nmacd、sslchannel等实用指标
-##### 自带hhc macd_rsi  ma_nmacd_rsi等实用交易信号
+Disclaimer
+This project is for research, learning, and engineering experimentation only. It does not provide financial advice, investment recommendations, or trading guarantees. Use it at your own risk.
 
-## 环境要求
+Features
+Real-time and historical A-share data analysis
+Configurable stock universe and monitoring targets
+Custom technical indicators and signal rules
+Active signal scanning across selected stocks
+Real-time signal monitoring
+Email notification support for detected signals
+Multi-process monitoring mode
+Built-in examples of practical indicators, including:
+MACD
+HalfTrend
+Smart Money Concepts / SMC
+NMACD
+SSL Channel
+Built-in examples of trading signals, including:
+HHC
+MACD + RSI
+MA + NMACD + RSI
+Project Status
 
-Python 3.6 及以上版本。
-需要安装 pandas、numpy、tushare、matplotlib 和 smtplib 等第三方库。
-安装命令：
+This repository is currently in an early maintenance stage.
+
+The current focus is to make the project easier to install, understand, extend, and contribute to. Planned improvements include:
+
+Cleaner English documentation
+Safer configuration examples
+Better dependency management
+Unit tests for indicators and signal logic
+More modular data-source adapters
+More examples for custom indicators and custom signal strategies
+Better contributor guidelines
+Repository Structure
+
+The main source code is located under the stock-analyser directory.
+
+Key modules include:
+
+exchange
+Data access and market-data retrieval.
+analysis
+Technical-analysis logic.
+indicator
+More complex custom indicators.
+trading_signals
+Signal definitions. A signal can be based on a single indicator or a combination of indicators.
+notifiers
+Notification logic. The current implementation supports email alerts and can be extended to other channels such as webhook, Discord, Telegram, Slack, or other messaging services.
+config
+Runtime configuration, including monitored stocks, signal selection, scanning settings, and notifier settings.
+Requirements
+Python 3.6 or above
+
+Common dependencies include:
+
+pandas
+numpy
+tushare
+matplotlib
+smtplib
+
+Install dependencies with:
+
 pip install -r requestment.txt
 
-## 使用说明
+Note: the dependency file name is currently kept as requestment.txt to match the existing repository. It may be renamed to requirements.txt in a future cleanup.
 
-### 1.主要模块
+Configuration
 
-##### 数据源使用Ashare封装，可更换其他数据源封装包。
-##### Analysis模块为技术分析模块 
-##### 其中Indicator模块为相对复杂的技术指标 ，ma、rsi等talib自带指标直接写在trading_signal
+The main runtime configuration is defined in config.json.
 
-##### trading_signals为交易信号，交易信号可以是单指标或者指标组合。
+Typical configuration sections include:
 
-##### Notifiers模块为通知模块，目前仅支持邮件，可以方便扩展到webhook 推特 discord等
+pairlists
 
-##### exchange：获取交易数据 config：配置
+The list of A-share symbols to monitor.
 
-### 2.配置config.json文件
+Supported formats include:
 
-##### pairlists：股票标的，支持Ashare两种格式'sh000001'或者'000001.XSHG'
+sh000001
+000001.XSHG
+signals
 
-##### signals：交易信号
+The available trading-signal definitions.
 
-##### scan：实际参与搜索和监控的信号
+scan
 
-##### notifier:配置邮箱参数
-包括发件人邮箱、SMTP 服务器地址、SMTP 端口号、发件人邮箱用户名和密码等。
-其中发送邮箱的密码通常为应用专用密码，通常需进入邮箱服务器申请
+The signal rules that are enabled for active scanning or real-time monitoring.
 
-### 3.运行
+notifier
 
-##### 如要单进程实时监控交易信号并邮件通知，运行main.py
+Email-notification settings, including:
 
-##### 如要多进程实时监控交易信号并邮件通知，运行multi_mode_main.py
+sender email address
+SMTP server
+SMTP port
+email username
+email password or app-specific password
 
-##### 主动扫描请使用scan_signals.py 参照代码在scanner.scan_pairs中填上标的列表，交易信号和周期并运行
+Security note: do not commit real email credentials, API tokens, or app-specific passwords to the repository. Use a local config file, environment variables, or a secret manager when possible.
 
-##### 其中 is_hot 为 True时为买入信号，is_cold 为 True时为卖出信号，其他为信号相关数据， 都可自定义
-## 如何贡献
+Usage
+1. Single-process real-time monitoring
 
-如果您发现了 Bug 或有任何改进建议，请在 Issues 中提出。
-如果您愿意为该项目的开发和维护做出贡献，请 Fork 本项目，并提交 Pull Request。
+Run:
 
-## 作者
+python main.py
 
-作者：chentaiyi
-微信：501745
-邮箱：501745@qq.com
+This starts real-time monitoring and sends email notifications when configured signal conditions are met.
 
+2. Multi-process real-time monitoring
 
+Run:
 
+python multi_mode_main.py
+
+This enables multi-process monitoring for a larger stock universe or heavier signal workloads.
+
+3. Active signal scanning
+
+Run or customize:
+
+python scan_signals.py
+
+Use scanner.scan_pairs to configure:
+
+target stock list
+trading signal
+analysis period or time window
+
+The scanner returns signal-related data. In the existing convention:
+
+is_hot = True indicates a potential buy signal
+is_cold = True indicates a potential sell signal
+other returned fields contain signal-specific diagnostic data
+Extending the Project
+
+You can extend the project in several ways:
+
+Add a new indicator
+
+Create or update an indicator module under the indicator-related code path, then expose the result to the trading-signal layer.
+
+Add a new trading signal
+
+Create a new signal rule in the trading_signals module. A signal can use one indicator or combine multiple indicators.
+
+Add a new notification channel
+
+Extend the notifiers module. The current project supports email notifications, but the structure can be expanded to support webhook-based services or messaging platforms.
+
+Replace or add a data source
+
+The data-source layer is currently based on an A-share data wrapper. It can be adapted to support other data providers if the returned market-data format is normalized for the analysis layer.
+
+Roadmap
+
+Planned maintenance work:
+
+Rewrite setup instructions in a clearer format
+
+Add example config.example.json
+
+Remove hard-coded local or sensitive configuration assumptions
+
+Rename requestment.txt to requirements.txt
+
+Add tests for core indicators
+
+Add tests for trading-signal outputs
+
+Add sample scanner workflows
+
+Improve error handling for data-source failures
+
+Improve email-notifier safety and documentation
+
+Add contributor guidelines
+
+Contributing
+
+Issues and pull requests are welcome.
+
+Good first contributions include:
+
+fixing documentation gaps
+adding installation notes
+improving configuration examples
+adding unit tests
+adding new indicators
+adding new signal examples
+improving error handling
+adding new notification backends
+
+Before submitting a pull request, please make sure the change is clearly scoped and includes enough explanation for review.
+
+Fork Attribution
+
+This repository is a maintained fork of the original chentaiyi/stock-analyzer project.
+
+Original author information from the upstream README:
+
+Author: chentaiyi
+WeChat: 501745
+Email: 501745@qq.com
+
+This fork is maintained by Li Zhou / zhouliion with the goal of improving documentation, maintainability, testing, and extensibility for open-source A-share analysis and monitoring use cases.
+
+License
+
+This project is released under the MIT License.
